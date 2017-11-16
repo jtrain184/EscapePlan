@@ -1,0 +1,19 @@
+
+/******************************************************************************
+ * STICKY NOTES FOR ESCAPE PLAN PROJECT
+ * - Place ideas or todo list things in this document
+ * - Please follow the format provided
+ * - Don't forget to message us on hangouts if you need anything quickly
+ * 
+ * [FORMAT]
+ * - required user(s): Here is what I want to say
+ * 	- Here is an additional thing I want to say
+ ******************************************************************************/
+
+- James: finish setting up the server for hosting our project: DONE
+this is a test
+- James & Phil: set up the basic nodejs server so that we can start adding html skeleton files
+
+- Chris and Jacob: set up the basic SQL server
+
+

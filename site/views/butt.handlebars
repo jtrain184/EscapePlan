@@ -1,0 +1,36 @@
+<!-- TITLE -->
+
+<p>YOYOOOYOYOY
+    <?php
+/**
+ * Created by PhpStorm.
+ * User: Christopher
+ * Date: 11/13/2017
+ * Time: 4:35 PM
+*/
+//Turn on error reporting
+ini_set('display_errors', 'On');
+//Connects to the database
+$mysqli = new mysqli("localhost:3306", "bugschc", "buttface", "mydb");
+if ($mysqli->connect_errno) {
+    echo "Connection error " . $mysqli->connect_errno . " " . $mysqli->connect_error;
+    }
+
+    ?>
+
+    <?php
+if (!($stmt = $mysqli->prepare("SELECT test.first_name, test.last_name FROM test"))) {
+    echo "Prepare failed: " . $stmt->errno . " " . $stmt->error;
+    }
+
+    if (!$stmt->execute()) {
+    echo "Execute failed: " . $mysqli->connect_errno . " " . $mysqli->connect_error;
+    }
+    if (!$stmt->bind_result($fname, $lname)) {
+    echo "Bind failed: " . $mysqli->connect_errno . " " . $mysqli->connect_error;
+    }
+    while ($stmt->fetch()) {
+    echo '<div>' . $fname . '</div><div>' . $lname . '</div>';
+}
+$stmt->close();
+?>

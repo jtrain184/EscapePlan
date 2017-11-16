@@ -1,0 +1,33 @@
+<script type="text/javascript" src="shelterFunctions.js"></script>
+
+<style>
+    table, th, td{
+        border: 1px solid black;
+    }
+    td.id{
+        display: none;
+    }
+</style>
+
+{{#if results}}
+<table>
+    <tr>
+        <th>Shelter Name</th>
+        <th>Phone Number</th>
+        <th>Capacity</th>
+        <th>Available</th>
+    </tr>
+    {{#each results}}
+        <tr>
+            <td>{{this.name}}</td>
+            <td>{{this.pnum}}</td>
+            <td><input id="cap" type="number" value="{{capacity}}" disabled></td>
+            <td>{{this.description}}</td>
+            <td class="id" value="{{this.id}}">{{this.id}}</td>
+        </tr>
+    {{/each}}
+</table>
+    <button onclick="editCap()">Edit Capacity</button>
+{{else}}
+    <h3>Invalid Username or Password</h3>
+{{/if}}
