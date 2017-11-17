@@ -2,6 +2,8 @@
 <style>
     form {
         border: 3px solid #f1f1f1;
+	width: 35%;
+	min-width: 400px;
     }
 
     input[type=text], input[type=password] {
@@ -30,18 +32,15 @@
 
 
 
-
     .container {
         padding: 16px;
     }
-
-
-
-
 </style>
 <h2>Volunteer Login</h2>
 
-<form action="/Ishelter?do=login" method="post">
+
+
+<form action="/Ivolunteer?do=login" method="post">
     <div class="container">
         <label><b>Username</b></label>
         <input type="text" placeholder="Enter Username" name="uname" required>

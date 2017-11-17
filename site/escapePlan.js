@@ -12,6 +12,8 @@ var express = require('express');
 var app = express();
 app.set('port', 3000);
 
+
+
 // ======= HANDLEBARS SETUP ==========
 
 var myHandlebars = require("express-handlebars").create({
@@ -34,24 +36,19 @@ app.use(express.static("public"));
 // ====== DATABASE SETUP ============== TODO Chris
 var mysql = require("./mysqlSetup.js");
 
-// TEST CALL:
-app.get('/select',function(req,res,next){
-  var context = {};
-  mysql.pool.query('SELECT * FROM test', function(err, rows, next){
-      if(err){
-            next(err);
-            return;
-      }
-      res.send(JSON.stringify(rows));
-      });
-});
+
 
 
 
 // HOME PAGE:
 app.get("/", function(req,res, next){
+    app.locals.test = "test";
     res.render('home');
 });
+
+
+
+
 
 
 // victim activate system page
@@ -61,21 +58,112 @@ app.get("/activate", function(req,res, next){
     var lat = req.query.lat;
     var lon = req.query.lon;
 
-    mysql.pool.query("INSERT INTO victim (`location_lat`, `location_lon`) VALUES (?,?)", [lat, lon], function (err, result) {
+    var vicID;
+
+    //Create a new victim
+    mysql.pool.query("INSERT INTO victim (`location_lat`, `location_lon`) VALUES (?,?)", [lat, lon], function (err, result, next) {
         if (err) {
             next(err);
             return;
         }
+        vicID = result.insertId;
     });
 
+    //Create a new case file
+    mysql.pool.query("INSERT INTO caseFile (`vicID`) VALUES (?)", [vicID], function (err, result, next) {
+        if (err) {
+            next(err);
+            return;
+        }
+        app.locals.caseID = result.insertId;
+    });
 
     res.render('victim');
 });
+
+
+
+
+
+
+// VOLUNTEER LOG IN PAGE
+app.get("/volunteerLogIn", function(req,res, next){
+    console.log(app.locals.caseID);
+    res.render('volunteerLogIn');
+});
+
+
+
+
+
+// VOLUNTEER INTERFACE:
+app.post("/Ivolunteer", function(req,res, next){
+    var context = {};
+    var action = req.query.do;
+
+    //================ Volunteer Log In ========================//
+    if(action == "login") {
+        var usr = req.body.uname;
+        var psw = req.body.psw;
+
+        mysql.pool.query("SELECT volunteer.id, volunteer.fname, volunteer.lname, volunteer.pnum, volunteer.approvalRating, Availability.description " +
+            "FROM volunteer INNER JOIN Availability ON volunteer.availability = Availability.availability " +
+            "WHERE usr=? AND pass=?", [usr, psw], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            console.log(result);
+            context.results = result;
+    	    res.render('Ivolunteer', context);
+        });
+    }
+
+
+    //================ Update Availability ========================//
+    else if(action == "updateAvailability"){
+        var id = req.body.iId;
+        var avail = req.body.iAvailable;
+
+	    console.log("avail: " + avail);
+	    console.log("id: " + id);
+
+        mysql.pool.query("UPDATE volunteer SET availability=? WHERE id=?", [avail, id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+        });
+
+    	res.render('Ivolunteer');
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // SHELTER LOG IN PAGE:
 app.get("/shelterLogIn", function(req,res, next){
     res.render('shelterLogIn');
 });
+
+
+
+
+
+
 
 // SHELTER INTERFACE:
 app.post("/Ishelter", function(req,res, next) {
@@ -125,9 +213,46 @@ app.post("/Ishelter", function(req,res, next) {
 
 
 
-// VOLUNTEER INTERFACE:
-app.get("/Ivolunteer", function(req,res, next){
-    res.render('Ivolunteer');
+
+
+// =========== SHELTER CONFIRMATION ============== //
+app.get("/shelterConfirm", function(req,res, next){
+    var context = {};
+    var unavailable = 0;
+
+        mysql.pool.query("SELECT shelter.id, shelter.name FROM shelter WHERE shelter.availability != ?", [unavailable], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            console.log(result);
+            context.results = result;
+            res.render('shelterConfirm', context);
+        });
+
+});
+
+
+
+
+// ==============Reset All Tables =================== //
+// BULLET POINTS
+// DO THIS LATER
+app.get('/systemReset', function(req,res,next){
+    var context = {};
+    mysql.pool.query("DROP TABLE IF EXISTS todo", function(err){
+        var createString = "CREATE TABLE todo(" +
+            "id INT PRIMARY KEY AUTO_INCREMENT," +
+            "name VARCHAR(255) NOT NULL," +
+            "reps INT," +
+            "weight INT," +
+            "date DATE," +
+            "lbs BOOLEAN)";
+        mysql.pool.query(createString, function(err){
+            context.results = "Table Reset";
+            res.render('toDo', context);
+        })
+    });
 });
 
 

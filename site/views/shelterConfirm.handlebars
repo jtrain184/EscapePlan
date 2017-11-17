@@ -1,0 +1,25 @@
+
+
+
+<script>console.log("hello");</script>
+
+{{#if results}}
+    <table>
+        <tr>
+            <th style="float: left">Shelter Name</th>
+        </tr>
+        {{#each results}}
+            <tr id="i{{@index}}" style="display: none">
+                <td>{{this.name}}</td>
+                <td class="id" style="display: none" value="{{this.id}}">{{this.id}}</td>
+            </tr>
+        {{/each}}
+    </table>
+    <div id="noShelter"></div>
+    <button id="reject" onclick="reject()">Reject</button>
+{{else}}
+    <H3>No Shelters Available</H3>
+{{/if}}
+
+
+<script type="text/javascript" src="shelterFunctions.js"></script>
