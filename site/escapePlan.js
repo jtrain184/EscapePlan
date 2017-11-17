@@ -54,9 +54,22 @@ app.get("/", function(req,res, next){
 });
 
 
-// new page
-app.get("/butt", function(req,res, next){
-    res.render('butt');
+// victim activate system page
+app.get("/activate", function(req,res, next){
+    var context = {};
+
+    var lat = req.query.lat;
+    var lon = req.query.lon;
+
+    mysql.pool.query("INSERT INTO victim (`location_lat`, `location_lon`) VALUES (?,?)", [lat, lon], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+    });
+
+
+    res.render('victim');
 });
 
 // SHELTER LOG IN PAGE:
@@ -65,44 +78,51 @@ app.get("/shelterLogIn", function(req,res, next){
 });
 
 // SHELTER INTERFACE:
-app.get("/Ishelter", function(req,res, next) {
+app.post("/Ishelter", function(req,res, next) {
     var context = {};
-    var usr = req.query.uname;
-    var psw = req.query.psw;
 
-    mysql.pool.query("SELECT shelter.id, shelter.name, shelter.pnum, shelter.capacity, Availability.description " +
-        "FROM shelter INNER JOIN Availability ON shelter.availability = Availability.availability " +
-        "WHERE usr=? AND pass=?", [usr, psw], function (err, result) {
-        if (err) {
-            next(err);
-            return;
-        }
-       console.log(result);
-        context.results = result;
-        res.render('Ishelter', context);
-    });
+    var action = req.query.do;
+
+    //================ Shelter Log In ========================//
+    if(action == "login")
+    {
+        var usr = req.body.uname;
+        var psw = req.body.psw;
+
+        mysql.pool.query("SELECT shelter.id, shelter.name, shelter.pnum, shelter.capacity, Availability.description " +
+            "FROM shelter INNER JOIN Availability ON shelter.availability = Availability.availability " +
+            "WHERE usr=? AND pass=?", [usr, psw], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            console.log(result);
+            context.results = result;
+            res.render('Ishelter', context);
+        });
+    }
+
+    //================ Update Shelter Capacity ========================//
+    else if(action == "updateCap"){
+        var id = req.body.iId;
+        var cap = req.body.iCap;
+
+        mysql.pool.query("UPDATE shelter SET capacity=? WHERE id=?", [cap, id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            /*
+             console.log(result);
+             context.results = result;
+             res.render('Ishelter', context);
+             */
+        });
+        res.render('Ishelter');
+    }
 });
 
-// UPDATE SHELTER CAPACITY:
-app.get("/shelterUpdate", function(req,res, next) {
-    var context = {};
-    var id = req.query.id;
-    var cap = req.query.cap;
 
-    mysql.pool.query("UPDATE shelter SET capacity=? WHERE id=?", [cap, id], function (err, result) {
-        if (err) {
-            next(err);
-            return;
-        }
-       /*
-        console.log(result);
-        context.results = result;
-        res.render('Ishelter', context);
-        */
-    });
-    console.log("get request received");
-    res.render('Ishelter');
-});
 
 
 // VOLUNTEER INTERFACE:

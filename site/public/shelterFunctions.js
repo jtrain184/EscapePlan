@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', bindButtons);
 function editCap() {
     var input = document.getElementById("cap");
     input.disabled = false;
+    input.focus();
     console.log("click me hard");
 }
 function bindButtons() {
@@ -19,11 +20,11 @@ function bindButtons() {
             console.log(id);
 
             var req = new XMLHttpRequest();
+            var payload = {
+                iId:id,
+                iCap:input.value};
 
-
-
-
-            req.open('GET','http://67.158.10.37:3000/shelterUpdate?id=' + id + '&cap=' + input.value, true);
+            req.open('POST','http://67.158.10.37:3000/IShelter?do=updateCap', true);
             req.addEventListener('load', function(){
                 if(req.status >= 200 && req.status < 400){
                     input.disabled = true;
@@ -33,7 +34,10 @@ function bindButtons() {
                     console.log("Error in network request: " + req.statusText);
                 }
             });
-            req.send(null);
+            req.setRequestHeader('Content-Type', 'application/json');
+            req.send(JSON.stringify(payload));
+            console.log(payload);
+            event.preventDefault();
 
 
         }
