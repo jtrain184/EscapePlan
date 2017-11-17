@@ -2,61 +2,86 @@
 <script type="text/javascript" src="volunteerFunctions.js"></script>
 
 
-<h1> Escape Plan </h1>
-<h2> Volunteer Interface </h2>
-
-
-
 <style>
-    table, th, td{
-        border: 1px solid black;
-    }
-    td.id{
-        display: none;
-    }
+	#box {
+		background-color: #ecccff;
+		border: 5px solid black;
+		padding: 16px;
+		margin: 12px;
+    width: 512px;
+	}
+
+	#availableBox {
+		background-color: #ecccff;
+		border: 3px solid black;
+		padding: 12px;
+		margin: 12px;
+	}
+
+	#infoBox {
+		background-color: #ecccff;
+		border: 3px solid black;
+		padding: 12px;
+		margin: 12px;
+	}
+
 </style>
 
-{{#if results}}
+
+<div id="box">
+
+<!-- USE THIS IF MULTIPLE RESULTS -->
+<!-- {{#each results}} -->
+<!-- {{/each}} -->
+
+	{{#if results}} 
+	{{#each results}}
+
+		<!-- TITLE -->
+		<h1> Escape Plan </h1>
+		<h2> Volunteer Interface </h2>
 
 
-<table>
-    <tr>
-        <th>First Name</th>
-	<th>Last Name</th>
-        <th>Phone Number</th>
-        <th>Approval Rating</th>
-        <th>Available</th>
-    </tr>
-    {{#each results}}
-        <tr>
-            <td>{{this.fname}}</td>
-            <td>{{this.lname}}</td>
-            <td>{{this.pnum}}</td>
-            <td>{{this.approvalRating}}</td> 
+		<!-- AVAILABLE BOX -->
+		<div id="availableBox">
+			<span>Available Now? </span>
+			<span id="availabilityText">{{this.description}}</span>
 
-		<!-- add function to convert to perc in volunteerFunctions.js -->
-            <td id="availabilityText">{{this.description}}</td>
-            <td id="volunteerId" class="id" value="{{this.id}}">{{this.id}}</td>
-        </tr>
-    {{/each}}
-</table>
-    
-<!-- make function for on click for change availability in volunteerFunctions.js -->
-<button id="availabilityButton" onclick="clickAvailability()">UpdateAvailability</button>
+      <div id="availableButtons">
+        <button id="availabilityButton" onclick="clickAvailability()">UpdateAvailability</button>
+        <div id="availability" style="display: none">
+          <p>Select your availability</p>
 
-<div id="availability" style="display: none">
-	<p>Select your availability</p>
+          <button id="isAvailable" onclick="sendAvailable(1)">I am available</button>
+          <button id="isNotAvailable" onclick="sendAvailable(0)">I am NOT available</button>
+      </div>
+		</div>
 
-	<button id="isAvailable" onclick="sendIsAvailable()">I am available</button>
-	<button id="isNotAvailable" onclick="sendIsNotAvailable()">I am NOT available</button>
-</div>
+		</div>
 
 
-{{else}}
-    <h3>Invalid Username or Password</h3>
-{{/if}}
+		<!-- INFORMATIONBOX -->
+		<div id="infoBox">
+			<p>First Name: {{this.fname}}
+			<p>Last Name: {{this.lname}}
+			<p>Phone Number: {{this.pnum}}
+
+				<!-- add function to convert to perc in volunteerFunctions.js -->
+			<p>Approval Rating: {{this.approvalRating}}
+		</div>
+
+		<!-- HIDDEN -->
+		<span id="volunteerId" style="display: none;" value="{{this.id}}">{{this.id}}</span>
+	{{/each}}
 
 
 
+
+
+	{{else}}
+	    <h3>Invalid Username or Password</h3>
+	{{/if}}
+
+</div> <!-- BOX -->
 
 
