@@ -1,5 +1,5 @@
 {
-  "name": "escapePlan",
+  "name": "escapeplan",
   "version": "1.0.0",
   "description": "Web App for providing victims from domestic abuse tools",
   "main": "escapePlan.js",
@@ -14,5 +14,19 @@
     "express-handlebars": "^2.0.1",
     "express-session": "^1.11.3",
     "mysql": "^2.8.0"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtrain184/EscapePlan.git"
+  },
+  "keywords": [
+    "domestic",
+    "abuse",
+    "help"
+  ],
+  "bugs": {
+    "url": "https://github.com/jtrain184/EscapePlan/issues"
+  },
+  "homepage": "https://github.com/jtrain184/EscapePlan#readme"
 }

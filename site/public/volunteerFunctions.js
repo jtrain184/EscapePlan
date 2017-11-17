@@ -10,7 +10,7 @@ function clickAvailability() {
 	console.log("FOUND IT!");
 }
 
-
+/*
 
 function sendIsAvailable() {
 
@@ -45,28 +45,30 @@ function sendIsAvailable() {
 	availabilityDiv.style.display = 'none';
 }
 
+*/
 
 
 
-
-function sendIsNotAvailable() {
+function sendAvailable(status) {
 
 
 	var req = new XMLHttpRequest();
 	var id = document.getElementById("volunteerId").textContent;
 
-	console.log("this is what we are wondering: " + id);
-
 	var payload = {
 		iId:id,
-		iAvailable: 0 // value for is NOT available
+		iAvailable: status // 1 = available, 0 = not
 	};
 
 	req.open('POST','http://67.158.10.37:3000/Ivolunteer?do=updateAvailability', true);
 	req.addEventListener('load', function(){
 		if(req.status >= 200 && req.status < 400){
+
 			// Update the value in the table:
-			document.getElementById("availabilityText").textContent = "No";
+			if (status == 0)
+				document.getElementById("availabilityText").textContent = "No";
+			else 
+				document.getElementById("availabilityText").textContent = "Yes";
 		}
 		else{
 		    console.log("Error in network request: " + req.statusText);

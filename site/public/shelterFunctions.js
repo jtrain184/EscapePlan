@@ -3,6 +3,7 @@
  */
 
 var index = 0;
+var editInstructions = document.getElementById("editInstructions");
 
 document.addEventListener('DOMContentLoaded', bindButtons);
 window.onload = displayRow;
@@ -16,15 +17,25 @@ function displayRow(){
 }
 
 function editCap() {
+    var editInstructions = document.getElementById("editInstructions");
+    
+    if (editInstructions.style.display == 'none')
+        editInstructions.style.display = 'block';
+        
     var input = document.getElementById("cap");
     input.disabled = false;
     input.focus();
     console.log("click me hard");
+    
+    
 }
 function bindButtons() {
-    if(document.getElementById('cap')) {
+    if(document.getElementById('cap')) {             
         document.getElementById('cap').addEventListener('keydown', function (event) {
             if (event.key === 'Enter') {
+                // Hide edit instructions to user after they have pressed Enter
+                var editInstructions = document.getElementById("editInstructions");
+                editInstructions.style.display = 'none';
                 var input = document.getElementById('cap');
 
                 console.log("You entered me!");
