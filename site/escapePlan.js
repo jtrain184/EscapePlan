@@ -33,10 +33,8 @@ app.use(bodyParser.json());
 // for static pages
 app.use(express.static("public"));
 
-// ====== DATABASE SETUP ============== TODO Chris
+// ====== DATABASE SETUP ============== 
 var mysql = require("./mysqlSetup.js");
-
-
 
 
 
@@ -48,16 +46,23 @@ app.get("/", function(req,res, next){
 
 
 
-
-
-
-// victim activate system page
+// VICTIM ACTIVATE SYSTEM PAGE
 app.get("/activate", function(req,res, next){
+    res.render('activate');
+});
+
+
+// INITIAL VICTIM PAGE (creates new victim with location long/lat coordiantes)
+app.post("/victim", function(req,res, next){
     var context = {};
+    // Test output
+    console.log(req.body);
+    
+    
+    var lat = req.body.lat;
+    var lon = req.body.lon;
 
-    var lat = req.query.lat;
-    var lon = req.query.lon;
-
+    //  To grab victim ID for use in new case files
     var vicID;
 
     //Create a new victim
@@ -83,17 +88,10 @@ app.get("/activate", function(req,res, next){
 
 
 
-
-
-
 // VOLUNTEER LOG IN PAGE
 app.get("/volunteerLogIn", function(req,res, next){
-    console.log(app.locals.caseID);
     res.render('volunteerLogIn');
 });
-
-
-
 
 
 // VOLUNTEER INTERFACE:
@@ -113,7 +111,6 @@ app.post("/Ivolunteer", function(req,res, next){
                 next(err);
                 return;
             }
-            console.log(result);
             context.results = result;
     	    res.render('Ivolunteer', context);
         });
@@ -124,9 +121,6 @@ app.post("/Ivolunteer", function(req,res, next){
     else if(action == "updateAvailability"){
         var id = req.body.iId;
         var avail = req.body.iAvailable;
-
-	    console.log("avail: " + avail);
-	    console.log("id: " + id);
 
         mysql.pool.query("UPDATE volunteer SET availability=? WHERE id=?", [avail, id], function (err, result) {
             if (err) {
@@ -142,27 +136,30 @@ app.post("/Ivolunteer", function(req,res, next){
 
 
 
+// =========== VOLUNTEER CONFIRMATION ============== //
+app.get("/volAccDec", function(req,res, next){
+    var context = {};
+    var unavailable = 0;
 
+    mysql.pool.query("SELECT volunteer.id, volunteer.fname, volunteer.lname, volunteer.pnum, " +
+        "volunteer.location_lat, volunteer.location_lon, volunteer.carMake, volunteer.carModel, " +
+        "volunteer.carColor FROM volunteer WHERE volunteer.availability != ?", [unavailable], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+       // console.log(result);
+        context.results = result;
+        res.render('volAccDec', context);
+    });
 
-
-
-
-
-
-
-
-
+});
 
 
 // SHELTER LOG IN PAGE:
 app.get("/shelterLogIn", function(req,res, next){
     res.render('shelterLogIn');
 });
-
-
-
-
-
 
 
 // SHELTER INTERFACE:

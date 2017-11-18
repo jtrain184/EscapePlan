@@ -1,0 +1,21 @@
+<!--
+<script>
+
+if (navigator.geolocation) {
+	navigator.geolocation.getCurrentPosition(success);
+} 
+
+function success(position) {
+	document.getElementById("latitude").value = position.coords.latitude;
+	document.getElementById("longitude").value = position.coords.longitude;
+}
+
+</script>
+-->
+<p>Welcome to escapePlan </p>
+<p>Press the activate button below to receive help </p>
+<form action="/victim" id="activate" method="post" accept-charset=utf-8>
+	<input type="hidden" name="lat" id="latitude" value=44.5638>
+	<input type="hidden" name="lon" id="longitude" value=-123.2794>
+	<button type="Submit">Activate</button>
+</form>
