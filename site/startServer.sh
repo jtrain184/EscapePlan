@@ -1,2 +1,2 @@
 #!/bin/bash
-forever start -a escapePlan.js
+forever start -a --uid escapePlan escapePlan.js

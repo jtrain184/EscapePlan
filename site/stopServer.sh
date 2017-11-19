@@ -1,2 +1,2 @@
 #!/bin/bash
-forever stop escapePlan.js
+forever stop escapePlan
