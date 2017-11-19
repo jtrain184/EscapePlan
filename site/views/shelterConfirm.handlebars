@@ -12,11 +12,12 @@
             <tr id="i{{@index}}" style="display: none">
                 <td>{{this.name}}</td>
                 <td class="id" style="display: none" value="{{this.id}}">{{this.id}}</td>
+                <td><button id="accept" onclick="accept('{{this.id}}')">Accept</button></td>
+                <td><button id="reject" onclick="reject()">Reject</button></td>
             </tr>
         {{/each}}
     </table>
     <div id="noShelter"></div>
-    <button id="reject" onclick="reject()">Reject</button>
 {{else}}
     <H3>No Shelters Available</H3>
 {{/if}}

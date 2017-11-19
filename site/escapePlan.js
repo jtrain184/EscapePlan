@@ -55,35 +55,98 @@ app.get("/activate", function(req,res, next){
 // INITIAL VICTIM PAGE (creates new victim with location long/lat coordiantes)
 app.post("/victim", function(req,res, next){
     var context = {};
-    // Test output
-    console.log(req.body);
-    
-    
-    var lat = req.body.lat;
-    var lon = req.body.lon;
+    var action = req.query.do;
 
-    //  To grab victim ID for use in new case files
-    var vicID;
+    // If loading from Volunteer Confirmation Page
+    if(action == "volConfirm"){
+        context.confirm= "The volunteer has arrived";
+        res.render('victim', context);
+    }
 
-    //Create a new victim
-    mysql.pool.query("INSERT INTO victim (`location_lat`, `location_lon`) VALUES (?,?)", [lat, lon], function (err, result, next) {
+    //if a volunteer has accepted
+    else if(action == "help"){
+        var volID = req.body.id;
+
+        //add volunteer to case file
+        mysql.pool.query("UPDATE caseFile SET volID=? WHERE id=?", [volID, app.locals.caseID], function (err, result, next) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+        });
+
+        //get and load the volunteers info on the victim's page
+        mysql.pool.query("SELECT volunteer.fname, volunteer.lname, volunteer.pnum, " +
+            "volunteer.carMake, volunteer.carModel, volunteer.carColor FROM volunteer " +
+            "WHERE volunteer.id=?", [volID], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            context.help = result;
+
+            res.render('victim', context);
+        });
+
+    }
+
+    // If loading from activate page
+    else {
+        // Test output
+        console.log(req.body);
+
+        var lat = req.body.lat;
+        var lon = req.body.lon;
+
+        //  To grab victim ID for use in new case files
+        var vicID = null;
+
+        //Create a new victim
+        mysql.pool.query("INSERT INTO victim (`location_lat`, `location_lon`) VALUES (?,?)", [lat, lon], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            console.log("This is the result: " + result.insertId);
+            vicID = result.insertId;
+
+        });
+
+        //call the function to create a new caseFile after 0.5 secs(needed to set the vicID)
+        setTimeout(newCase, 500);
+
+        //Create a new case file
+        function newCase() {
+            console.log("This is the var: " + vicID);
+            mysql.pool.query("INSERT INTO caseFile (`vicID`) VALUES (?)", [vicID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                app.locals.caseID = result.insertId;
+            });
+        }
+        context.newVic = "Victim and Case Created";
+        res.render('victim', context);
+    }
+});
+
+//When no volunteers or shelters are available
+app.get("/victim", function(req, res, next){
+    var context = {};
+
+    //add comment to caseFILE
+    mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?",
+        ["No volunteers/shelters available", app.locals.caseID], function (err, result, next) {
         if (err) {
             next(err);
             return;
         }
-        vicID = result.insertId;
-    });
 
-    //Create a new case file
-    mysql.pool.query("INSERT INTO caseFile (`vicID`) VALUES (?)", [vicID], function (err, result, next) {
-        if (err) {
-            next(err);
-            return;
-        }
-        app.locals.caseID = result.insertId;
     });
-
-    res.render('victim');
+    context.noHelp = "No Help Available";
+    res.render('victim', context);
 });
 
 
@@ -137,23 +200,76 @@ app.post("/Ivolunteer", function(req,res, next){
 
 
 // =========== VOLUNTEER CONFIRMATION ============== //
-app.get("/volAccDec", function(req,res, next){
+app.post("/volAccDec", function(req,res, next){
     var context = {};
     var unavailable = 0;
 
-    mysql.pool.query("SELECT volunteer.id, volunteer.fname, volunteer.lname, volunteer.pnum, " +
-        "volunteer.location_lat, volunteer.location_lon, volunteer.carMake, volunteer.carModel, " +
-        "volunteer.carColor FROM volunteer WHERE volunteer.availability != ?", [unavailable], function (err, result) {
+    var sID = req.body.id;
+    //add shelter to case file
+    mysql.pool.query("UPDATE caseFile SET sID=? WHERE id=?", [sID, app.locals.caseID], function (err, result, next) {
         if (err) {
             next(err);
             return;
         }
-       // console.log(result);
+    });
+
+    /********************************************************
+    Code To Update Shelter Capacity Here
+    ********************************************************/
+
+    var shelterCap;
+    mysql.pool.query("SELECT shelter.name, shelter.location_lat, shelter.location_lon, shelter.capacity " +
+        "FROM shelter WHERE shelter.id=?", [sID], function (err, shelterInfo) {
+        if (err) {
+            next(err);
+            return;
+        }
+        console.log(context);
+        context.shelter = shelterInfo;
+        shelterCap = context.shelter[0].capacity;
+    });
+
+    setTimeout(changeCap,500);
+    function changeCap(){
+        if(shelterCap == 1){
+            //change avail
+            mysql.pool.query("UPDATE shelter SET availability=? WHERE id=?", [0, sID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+            });
+        }
+        //update capacity
+        mysql.pool.query("UPDATE shelter SET capacity=capacity - 1 WHERE id=?", [sID], function (err, result, next) {
+            if (err) {
+                next(err);
+                return;
+            }
+        });
+        
+    }
+
+
+    mysql.pool.query("SELECT volunteer.id, volunteer.fname, volunteer.lname " +
+        "FROM volunteer WHERE volunteer.availability != ?", [unavailable], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+        console.log(context);
         context.results = result;
         res.render('volAccDec', context);
     });
 
 });
+
+// ================= VOLUNTEER ARRIVAL CONFIRMATION ========= //
+app.get("/volArrConfirm", function(req, res, next){
+    res.render('volArrConfirm');
+});
+
+
 
 
 // SHELTER LOG IN PAGE:

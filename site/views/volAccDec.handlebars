@@ -1,43 +1,37 @@
-
-
-
-<script>console.log("hello");</script>
+<h1>A Victim Needs Help!</h1>
+{{#if shelter}}
+    {{#each shelter}}
+        <div>Victim Name: Unavailable
+            <br>
+            Victim Location: Unavailable
+        </div>
+        <div>
+            Shelter Name: {{this.name}}
+            <br>
+            Shelter Location: {{this.location_lat}}N {{this.location_lon}}W
+        </div>
+    {{/each}}
+{{/if}}
 
 {{#if results}}
+
+    <h3>Can you help us?</h3>
     <table>
-        <tr>
-            <th style="float: left">Volunteer Interface</th>
-        </tr>
-        <tr>
-            <th>
-                <h1>Notafication of Victim:</h1>
-            </th>
-        </tr>
         {{#each results}}
             <tr id="i{{@index}}" style="display: none">
                 <td>{{this.fname}} {{this.lname}}</td>
                 <td class="id" style="display: none" name="id" value="{{this.id}}">{{this.id}}</td>
-                <td>
-                    <form method="get">
-                        <input type="hidden" name="id" value="{{this.id}}">
-                        <input type="hidden" name="fname" value="{{this.fname}}">
-                        <input type="hidden" name="lname" value="{{this.lname}}">
-                        <input type="hidden" name="pnum" value="{{this.pnum}}">
-                        <input type="hidden" name="location_lat" value="{{this.location_lat}}">
-                        <input type="hidden" name="location_lon" value="{{this.location_lon}}">
-                        <input type="hidden" name="carMake" value="{{this.carMake}}">
-                        <input type="hidden" name="carModel" value="{{this.carModel}}">
-                        <input type="hidden" name="carColor" value="{{this.carColor}}">
-                        <input type="submit" name="volInbound" value="Accept">
-                    </form>
-                </td>
+                <td><button id="accept" onclick="accept('{{this.id}}')">Accept</button></td>
+                <td><button id="reject" onclick="reject()">Reject</button></td>
             </tr>
         {{/each}}
     </table>
-    <div id="noShelter"></div>
-    <button id="reject" onclick="reject()">Reject</button>
+    <div id="noVolunteers"></div>
+
+
 {{else}}
-    <H3>No Shelters Available</H3>
+    <h3>No Volunteers Available</h3>
+    <h3>Alerting System</h3>
 {{/if}}
 
 

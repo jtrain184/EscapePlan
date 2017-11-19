@@ -1,1 +1,45 @@
-<h2> Victim Page <h2>
+<h2> Victim Page </h2>
+
+{{#if newVic}}
+    <div>
+        Your location has been saved and a case file has been created.
+    </div>
+    <div>
+        A form gathering more information will go here.
+    </div>
+
+    <div><a href="shelterConfirm">Next</a> </div>
+{{/if}}
+
+
+{{#if confirm}}
+    <div>
+        {{confirm}}
+    </div>
+{{/if}}
+
+{{#if help}}
+    <h3>Help is on the way!</h3>
+    {{#each help}}
+    <div>
+        Name: {{this.fname}} {{this.lname}}
+        <br>
+        Phone Number: {{this.pnum}}
+        <br>
+        Vehicle: {{this.carColor}} {{this.carMake}} {{this.carModel}}
+    </div>
+{{/each}}
+    
+    <div><a href="volArrConfirm">Next</a> </div>
+{{/if}}
+
+{{#if noHelp}}
+    <div>
+        <h1>We couldn't find a volunteer or shelter</h1>
+        <br>
+        <p>
+            If you are in immediate danger, call 911!
+        </p>
+
+    </div>
+{{/if}}

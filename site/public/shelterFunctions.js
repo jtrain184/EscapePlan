@@ -18,16 +18,16 @@ function displayRow(){
 
 function editCap() {
     var editInstructions = document.getElementById("editInstructions");
-    
+
+    //display instructions to user
     if (editInstructions.style.display == 'none')
         editInstructions.style.display = 'block';
-        
+
+    //allow user to edit the capacity
     var input = document.getElementById("cap");
     input.disabled = false;
     input.focus();
-    console.log("click me hard");
-    
-    
+
 }
 function bindButtons() {
     if(document.getElementById('cap')) {             
@@ -38,11 +38,8 @@ function bindButtons() {
                 editInstructions.style.display = 'none';
                 var input = document.getElementById('cap');
 
-                console.log("You entered me!");
-
-                console.log(input.parentNode.parentNode.lastChild.previousSibling.childNodes);
+                //get ID of shelter
                 var id = input.parentNode.parentNode.lastChild.previousSibling.textContent;
-                console.log(id);
 
                 var req = new XMLHttpRequest();
                 var payload = {
@@ -82,9 +79,33 @@ function reject(){
         row.style.display = "block";
     }
     else{
-        document.getElementById('noShelter').innerHTML = "No Shelters Available. Call 9-1-1!!!!!!!!!!";
+        document.getElementById('noShelter').innerHTML = "No Shelters Available. Alerting System";
         var button = document.getElementById('reject');
         button.disabled = true;
+
+        //navigate to the victim page and alert them no volunteers are available
+        window.location.href = 'http://67.158.10.37:3000/victim?do=noHelp';
     }
 
+}
+
+
+function accept(sID){
+    //create a form to send Shelter Info to Volunteer
+    var form = document.createElement('form');
+    form.style.visibility = 'hidden';
+    form.method = 'POST';
+    form.action = 'http://67.158.10.37:3000/volAccDec';
+
+    //create input to hold POST data being sent eg:Shelter ID
+    var input = document.createElement('input');
+    input.name = 'id';
+    input.value = sID;
+
+    //add input to form, then add form to page
+    form.appendChild(input);
+    document.body.appendChild(form);
+
+    //submit the form to the server
+    form.submit();
 }
