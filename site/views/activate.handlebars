@@ -1,17 +1,23 @@
-<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
+	var success = function(position) {
+		document.getElementById("latitude").value = position.coords.latitude;
+		document.getElementById("longitude").value = position.coords.longitude;
+		console.log("Found you!\nlat = " + position.coords.latitude + "\nlon = " + position.coords.longitude);
+	};
 
-if (navigator.geolocation) {
-	navigator.geolocation.getCurrentPosition(success);
-} 
+	var geolocation = function() {
+		jQuery.post( "https://www.googleapis.com/geolocation/v1/geolocate?key=AIzaSyAhVCbVbSMKK0VDtEMrNRCFafSmcQwGPZI", function(pos) {
+			success({coords: {latitude: pos.location.lat, longitude: pos.location.lng}});
+		})
+		.fail(function(err) {
+			console.log("You can't be found! Call 911!\n"+err);
+		});
+	};
 
-function success(position) {
-	document.getElementById("latitude").value = position.coords.latitude;
-	document.getElementById("longitude").value = position.coords.longitude;
-}
-
+	geolocation();
 </script>
--->
+
 <p>Welcome to escapePlan </p>
 <p>Press the activate button below to receive help </p>
 <form action="/victim" id="activate" method="post" accept-charset=utf-8>
