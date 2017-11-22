@@ -46,6 +46,24 @@ app.get("/", function(req,res, next){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// |=====================================================|
+// |                 VICTIM INTERACTIONS                 |
+// |=====================================================|
+
 // VICTIM ACTIVATE SYSTEM PAGE
 app.get("/activate", function(req,res, next){
     res.render('activate');
@@ -132,6 +150,8 @@ app.post("/victim", function(req,res, next){
     }
 });
 
+
+
 //When no volunteers or shelters are available
 app.get("/victim", function(req, res, next){
     var context = {};
@@ -148,6 +168,22 @@ app.get("/victim", function(req, res, next){
     context.noHelp = "No Help Available";
     res.render('victim', context);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+// |=====================================================|
+// |             VOLUNTEER INTERACTIONS                  |
+// |=====================================================|
 
 
 
@@ -272,6 +308,25 @@ app.get("/volArrConfirm", function(req, res, next){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// |=====================================================|
+// |                 SHELTER INTERACTIONS                |
+// |=====================================================|
+
 // SHELTER LOG IN PAGE:
 app.get("/shelterLogIn", function(req,res, next){
     res.render('shelterLogIn');
@@ -297,7 +352,6 @@ app.post("/Ishelter", function(req,res, next) {
                 next(err);
                 return;
             }
-            console.log(result);
             context.results = result;
             res.render('Ishelter', context);
         });
@@ -347,6 +401,131 @@ app.get("/shelterConfirm", function(req,res, next){
 
 
 
+
+
+
+
+
+
+
+
+
+
+// |=====================================================|
+// |                ADMIN INTERACTIONS                   |
+// |=====================================================|
+
+// Admin LOG IN PAGE:
+app.get("/adminLogIn", function(req,res, next){
+    res.render('adminLogIn');
+});
+
+
+// admin INTERFACE:
+app.post("/Iadmin", function(req,res, next) {
+    var context = {};
+    var action = req.query.do;
+
+    //================ Admin Log In ========================//
+    if(action == "login") {
+      var usr = req.body.uname;
+      var psw = req.body.psw;
+
+      mysql.pool.query("SELECT id, name FROM admin WHERE usr=? AND pass=?", [usr, psw], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+
+        context.admin = result;
+
+        // Grab ALL the shelter data:
+        mysql.pool.query("SELECT * FROM shelter", function (err, rows, fields) {
+            if (err) {
+                next(err);
+                return;
+            }
+
+          // shelter information can be accessed through these objects:
+          context.numShelters = rows.length;
+          context.shelter = [];
+
+          var index;
+          for (index = 0; index < context.numShelters; index++) {
+            var row = rows[index];
+            context.shelter.push({
+              id: row.id,
+              name: row.name,
+              pnum: row.pnum,
+              location_lat: row.location_lat,
+              location_lon: row.location_lon,
+              capacity: row.capacity,
+              availability: row.availability
+            });
+          } // end for
+
+
+
+          // Grab ALL the volunteer data:
+          mysql.pool.query("SELECT * FROM volunteer", function (err, rows, fields) {
+              if (err) {
+                  next(err);
+                  return;
+              }
+
+            // volunteer information can be accessed through these objects:
+            context.numVolunteers = rows.length;
+            context.volunteer = [];
+
+            var index;
+            for (index = 0; index < context.numVolunteers; index++) {
+              var row = rows[index];
+              context.volunteer.push({
+                id: row.id,
+                fname: row.fname,
+                lname: row.lname,
+                pnum: row.pnum,
+                availability: row.availability,
+                approvalRating: row.approvalRating,
+                carMake: row.carMake,
+                carModel: row.carModel,
+                carColor: row.carColor
+              });
+            } // end for
+ 
+            // NOW THAT WE HAVE COLLECTED ALL THE DATA,
+            // FINALLY RENDER THE PAGE:
+            res.render('Iadmin', context);
+
+          }); // end selecting volunteers
+        }); // end selecting shelters 
+      }); // end selecting admin
+    } // end action == login
+
+    // else if(action == "putActionHere") { }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// |=====================================================|
+// |                OTHER / TOOLS                        |
+// |=====================================================|
 
 // ==============Reset All Tables =================== //
 // BULLET POINTS
