@@ -1,33 +1,36 @@
-
-<!-- function displayVolunteers(filter) -->
+<script type="text/javascript" src="adminFunctions.js"></script>
 
 <style>
 
-    table, th, td{
+    table, th, td {
         border: 1px solid black;
         padding: 8px;
         border-collapse: collapse;
     }
 
-    td.id{
+    td.id {
         display: none;
     }
 
-	#box {
-		background-color: #ecccff;
-		border: 5px solid black;
-		padding: 16px;
-		margin: 12px;
-    min-width: 512px;
-	}
+    #box {
+        background-color: #ecccff;
+        border: 5px solid black;
+        padding: 16px;
+        margin: 12px;
+        min-width: 512px;
+    }
 
-	#shelterTable {
-    padding-top: 25px;
-  }
+    #shelterTable {
+        padding-top: 25px;
+    }
 
-	#volunteerTable {
-    padding-top: 25px;
-  }
+    #volunteerTable {
+        padding-top: 25px;
+    }
+
+    #deleteButton {
+        color: red;
+    }
 
 </style>
 
@@ -38,84 +41,132 @@
 
 {{#if admin}}
 
-<div id="box">
+    <div id="box">
 
-  <!-- ========= ADMIN TITLE ============== -->
-  {{#each admin}}
-    <h3>Hello, {{this.name}}!</h3>
-  {{/each}}
-
-  <!-- ========= SHELTER TABLE ============== -->
-  <!-- (hidden by default -->
-  <div id="shelterTable" style="display: block">  
-                        <!-- TODO hide this into button? -->
-    <table>
-        <caption> Shelter List </caption>
-        <tr>  <!-- TABLE HEADERS: SHELTER -->
-            <th>Shelter Name</th>
-            <th>Phone Number</th>
-            <th>Capacity</th>
-            <th>Available</th>
-        </tr>
-
-        {{#each shelter}}
-            <tr>
-                <td>{{this.name}}</td>
-                <td>{{this.pnum}}</td>
-                <td><input id="cap" type="number" value="{{capacity}}" disabled></td>
-                <td>{{this.availability}}</td>
-                <td class="id" value="{{this.id}}">{{this.id}}</td>
-            </tr>
+        <!-- ========= ADMIN TITLE ============== -->
+        {{#each admin}}
+            <h3>Hello, {{this.name}}!</h3>
+            <div id="adminID" style="display: none">
+                <input type="text" form="filterBy" name="adminID" value="{{this.id}}">
+            </div>
         {{/each}}
 
-    </table>
-  </div> <!-- shelterTable -->
+        <!-- ===========Filter Buttons ============ -->
+        <div id="filter" style="display: block">
+            <form id="filterBy" action="/Iadmin?do=filter" method="post">
+                Filter By:
+                <select id="userList" name="userList" onchange="showOptions()" form="filterBy">
+                    <option value="all">All Groups</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="shelter">Shelter</option>
+                </select>
+                Availability:
+                <select name="availableList" form="filterBy">
+                    <option value="all">All</option>
+                    <option value="1">Available</option>
+                    <option value="0">Unavailable</option>
+                </select>
+                <!-- ========== Filter By Volunteer Rating ===== -->
+                <div id="volunteerRating" style="display: none;">
+                    Volunteer Rating:
+                    <select name="volunteerRating" form="filterBy">
+                        <option value="all">All</option>
+                        <option value="0.5">Above 50%</option>
+                        <option value="0.49">Below 50%</option>
+                    </select>
+                </div>
+                <!-- ========== Filter By Shelter Capacity ===== -->
+                <div id="shelterCap" style="display: none;">
+                    Shelter Capacity:
+                    <select name="shelterCap" form="filterBy">
+                        <option value="all">All</option>
+                        <option value="0">0</option>
+                        <option value="1">1 - 4</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+                <input type="submit" value="Filter">
+            </form>
+        </div>
+
+        <!-- ========= SHELTER TABLE ============== -->
+        <!-- (hidden by default -->
+        {{#if shelter}}
+            <div id="shelterTable" style="display: block">
+                <!-- TODO hide this into button? -->
+                <table>
+                    <caption> Shelter List</caption>
+                    <tr>  <!-- TABLE HEADERS: SHELTER -->
+                        <th></th>
+                        <th>Shelter Name</th>
+                        <th>Phone Number</th>
+                        <th>Capacity</th>
+                        <th>Available</th>
+                    </tr>
+
+                    {{#each shelter}}
+                        <tr>
+                            <td>
+                                <button id="deleteButton" type="button" onClick="deleteShelter({{this.id}});">Delete
+                                </button>
+                            </td>
+                            <td>{{this.name}}</td>
+                            <td>{{this.pnum}}</td>
+                            <td><input id="cap" type="number" value="{{capacity}}" disabled></td>
+                            <td>{{this.availability}}</td>
+                            <td class="id" value="{{this.id}}">{{this.id}}</td>
+                        </tr>
+                    {{/each}}
+
+                </table>
+            </div> <!-- shelterTable -->
+        {{/if}}
 
 
 
-  <!-- ========= VOLUNTEER TABLE ============== -->
-  <!-- (hidden by default -->
-  <div id="volunteerTable" style="display: block">  
-                        <!-- TODO hide this into button? -->
-    <table>
-        <caption> Volunteer List </caption>
-        <tr>  <!-- TABLE HEADERS: VOLUNTEER -->
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Phone Number</th>
-            <th>Available</th>
-            <th>Approval Rating</th>
-            <th>Car Make</th>
-            <th>Car Model</th>
-            <th>Car Color</th>
-        </tr>
+        <!-- ========= VOLUNTEER TABLE ============== -->
+        <!-- (hidden by default -->
+        {{#if volunteer}}
+            <div id="volunteerTable" style="display: block">
+                <!-- TODO hide this into button? -->
+                <table>
+                    <caption> Volunteer List</caption>
+                    <tr>  <!-- TABLE HEADERS: VOLUNTEER -->
+                        <th></th> <!-- delete button -->
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Phone Number</th>
+                        <th>Available</th>
+                        <th>Approval Rating</th>
+                        <th>Car Make</th>
+                        <th>Car Model</th>
+                        <th>Car Color</th>
+                    </tr>
 
-        {{#each volunteer}}
-            <tr>
-                <td>{{this.fname}}</td>
-                <td>{{this.lname}}</td>
-                <td>{{this.pnum}}</td>
-                <td>{{this.availability}}</td>
-                <td>{{this.approvalRating}}</td>
-                <td>{{this.carMake}}</td>
-                <td>{{this.carModel}}</td>
-                <td>{{this.carColor}}</td>
-                <td class="id" value="{{this.id}}">{{this.id}}</td>
-            </tr>
-        {{/each}}
+                    {{#each volunteer}}
+                        <tr>
+                            <td>
+                                <button id="deleteButton" type="button" onClick="deleteVolunteer({{this.id}});">Delete
+                                </button>
+                            </td>
+                            <td>{{this.fname}}</td>
+                            <td>{{this.lname}}</td>
+                            <td>{{this.pnum}}</td>
+                            <td>{{this.availability}}</td>
+                            <td>{{this.approvalRating}}</td>
+                            <td>{{this.carMake}}</td>
+                            <td>{{this.carModel}}</td>
+                            <td>{{this.carColor}}</td>
+                            <td class="id" value="{{this.id}}">{{this.id}}</td>
+                        </tr>
+                    {{/each}}
 
-    </table>
-  </div> <!-- shelterTable -->
-
-
-
-
-
-
-
+                </table>
+            </div> <!-- shelterTable -->
+        {{/if}}
 
 
-</div> <!-- box -->
+    </div> <!-- box -->
 
 {{else}}
     <h3>Invalid Admin Username or Password</h3>

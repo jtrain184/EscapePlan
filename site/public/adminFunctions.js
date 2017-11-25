@@ -16,6 +16,58 @@ function displayVolunteers(filter) {
 }
 
 
+function deleteShelter(id) {
+  // make a post call, etc...
+  
+  alert("In the future, I will delete shelter with id: " + id);
+}
+
+
+function deleteVolunteer(id) {
+  // make a post call, etc...
+  
+  alert("In the future, I will delete volunteer with id: " + id);
+}
+
+function showOptions(){
+	var select = document.getElementById("userList");
+	var option = select.options[select.selectedIndex].value;
+
+
+	if(option == "volunteer"){
+		//show the volunteer rating div
+		var div = document.getElementById("volunteerRating");
+		div.style.display = "inline-block";
+
+		//hide the shelter capacity div
+        var otherDiv = document.getElementById("shelterCap");
+        otherDiv.style.display = "none";
+
+	}
+	if(option == "shelter"){
+		//show the shelter capacity div
+        var div = document.getElementById("shelterCap");
+        div.style.display = "inline-block";
+
+        //hide the volunteer rating div
+        var otherDiv = document.getElementById("volunteerRating");
+        otherDiv.style.display = "none";
+
+	}
+	if(option == "all"){
+        //hide the volunteer rating div
+        var otherDiv = document.getElementById("volunteerRating");
+        otherDiv.style.display = "none";
+
+        //hide the shelter capacity div
+        var otherDiv = document.getElementById("shelterCap");
+        otherDiv.style.display = "none";
+	}
+}
+
+
+
+
 
 
 /*    EXAMPLE CODE MAKE A POST REQUEST TO escapePlan.js:
