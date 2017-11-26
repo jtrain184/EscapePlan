@@ -17,16 +17,38 @@ function displayVolunteers(filter) {
 
 
 function deleteShelter(id) {
-  // make a post call, etc...
-  
-  alert("In the future, I will delete shelter with id: " + id);
+    var id = id;
+    var req = new XMLHttpRequest();
+
+    req.open('GET','http://67.158.10.37:3000/IadminDelete?from=shelter&id=' + id, true);
+    req.addEventListener('load', function(){
+        if(req.status >= 200 && req.status < 400){
+            var row = document.getElementById('deleteSButton'+id).parentNode.parentNode.rowIndex;
+            document.getElementById("shelterTable").deleteRow(row);
+        }
+        else{
+            console.log("Error in network request: " + req.statusText);
+        }
+    });
+    req.send(null);
 }
 
 
 function deleteVolunteer(id) {
-  // make a post call, etc...
-  
-  alert("In the future, I will delete volunteer with id: " + id);
+    var id = id;
+    var req = new XMLHttpRequest();
+
+    req.open('GET','http://67.158.10.37:3000/IadminDelete?from=volunteer&id=' + id, true);
+    req.addEventListener('load', function(){
+        if(req.status >= 200 && req.status < 400){
+            var row = document.getElementById('deleteVButton'+id).parentNode.parentNode.rowIndex;
+            document.getElementById("volunteerTable").deleteRow(row);
+        }
+        else{
+            console.log("Error in network request: " + req.statusText);
+        }
+    });
+    req.send(null);
 }
 
 function showOptions(){

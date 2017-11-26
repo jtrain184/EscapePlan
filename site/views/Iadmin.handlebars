@@ -92,9 +92,9 @@
         <!-- ========= SHELTER TABLE ============== -->
         <!-- (hidden by default -->
         {{#if shelter}}
-            <div id="shelterTable" style="display: block">
+            <div id="shelterTableDiv" style="display: block">
                 <!-- TODO hide this into button? -->
-                <table>
+                <table id="shelterTable">
                     <caption> Shelter List</caption>
                     <tr>  <!-- TABLE HEADERS: SHELTER -->
                         <th></th>
@@ -107,7 +107,7 @@
                     {{#each shelter}}
                         <tr>
                             <td>
-                                <button id="deleteButton" type="button" onClick="deleteShelter({{this.id}});">Delete
+                                <button id="deleteSButton{{this.id}}" type="button" onClick="deleteShelter({{this.id}});">Delete
                                 </button>
                             </td>
                             <td>{{this.name}}</td>
@@ -127,9 +127,9 @@
         <!-- ========= VOLUNTEER TABLE ============== -->
         <!-- (hidden by default -->
         {{#if volunteer}}
-            <div id="volunteerTable" style="display: block">
+            <div id="volunteerTableDiv" style="display: block">
                 <!-- TODO hide this into button? -->
-                <table>
+                <table id="volunteerTable">
                     <caption> Volunteer List</caption>
                     <tr>  <!-- TABLE HEADERS: VOLUNTEER -->
                         <th></th> <!-- delete button -->
@@ -146,7 +146,7 @@
                     {{#each volunteer}}
                         <tr>
                             <td>
-                                <button id="deleteButton" type="button" onClick="deleteVolunteer({{this.id}});">Delete
+                                <button id="deleteVButton{{this.id}}" type="button" onClick="deleteVolunteer({{this.id}});">Delete
                                 </button>
                             </td>
                             <td>{{this.fname}}</td>

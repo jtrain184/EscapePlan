@@ -38,8 +38,36 @@ var mysql = require("./mysqlSetup.js");
 
 // HOME PAGE:
 app.get("/", function (req, res, next) {
-    app.locals.test = "test";
     res.render('home');
+});
+
+app.post("/", function (req, res, next) {
+    var approval = req.body.approval;
+    var comments = req.body.comments;
+
+    //add the comments to the case file
+    mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?", [comments, app.locals.caseID], function (err, result, next) {
+        if (err) {
+            next(err);
+            return;
+        }
+        mysql.pool.query("SELECT caseFile.volID from caseFile WHERE id=?", [app.locals.caseID], function (err, result, next) {
+            if (err) {
+                next(err);
+                return;
+            }
+            var volID = result[0].volID;
+            //update the volunteers approval rating
+            mysql.pool.query("UPDATE volunteer SET `approvalRating` = (`approvalRating` * (`responseCount` - 1) + ?) / `responseCount` WHERE id=?", [approval, volID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+
+                res.render('home');
+            });
+        });
+    });
 });
 
 
@@ -64,6 +92,22 @@ app.post("/victim", function (req, res, next) {
         res.render('victim', context);
     }
 
+
+    //When no volunteers or shelters are available
+    else if (action == "noHelp") {
+        //add comment to caseFILE
+        mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?",
+            ["No volunteers/shelters available", app.locals.caseID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+
+            });
+        context.noHelp = "No Help Available";
+        res.render('victim', context);
+    }
+
     //if a volunteer has accepted
     else if (action == "help") {
         var volID = req.body.id;
@@ -74,8 +118,21 @@ app.post("/victim", function (req, res, next) {
                 next(err);
                 return;
             }
-
-        });
+            //set the chosen volunteer to unavailable while on the call
+            mysql.pool.query("UPDATE volunteer SET availability=0 WHERE id=?", [volID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                //increase the chosen volunteer's response count
+                mysql.pool.query("UPDATE volunteer SET responseCount=responseCount+1 WHERE id=?", [volID], function (err, result, next) {
+                    if (err) {
+                        next(err);
+                        return;
+                    }
+                }); // update response count query
+            }); //update the volunteer availability query
+        }); // update the caseFile query
 
         //get and load the volunteers info on the victim's page
         mysql.pool.query("SELECT volunteer.fname, volunteer.lname, volunteer.pnum, " +
@@ -92,11 +149,38 @@ app.post("/victim", function (req, res, next) {
 
     }
 
+    //if loading from victim arrival confirmation page
+    else if (action == "vicConfirm") {
+        //go to survery page
+        //get the volunteer ID from this case file
+        mysql.pool.query("SELECT caseFile.volID from caseFile WHERE id=?", [app.locals.caseID], function(err, result, next){
+            if(err){
+                next(err);
+                return;
+            }
+            var volID = result[0].volID;
+
+            //update that volunteers availability
+            mysql.pool.query("UPDATE volunteer SET availability=1 WHERE id=?", [volID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                //get volunteer's name for the victim survey
+                mysql.pool.query("SELECT volunteer.fname, volunteer.lname FROM volunteer WHERE id=?", [volID], function (err, results, next) {
+                    if (err) {
+                        next(err);
+                        return;
+                    }
+                    context.result = results;
+                    res.render('vicSurvey', context);
+                });
+            }); // update volunteer's availability
+        });//get volunteer's ID
+    }
+
     // If loading from activate page
     else {
-        // Test output
-        console.log(req.body);
-
         var lat = req.body.lat;
         var lon = req.body.lon;
 
@@ -112,44 +196,24 @@ app.post("/victim", function (req, res, next) {
             console.log("This is the result: " + result.insertId);
             vicID = result.insertId;
 
-        });
-
-        //call the function to create a new caseFile after 0.5 secs(needed to set the vicID)
-        setTimeout(newCase, 500);
-
-        //Create a new case file
-        function newCase() {
-            console.log("This is the var: " + vicID);
             mysql.pool.query("INSERT INTO caseFile (`vicID`) VALUES (?)", [vicID], function (err, result, next) {
                 if (err) {
                     next(err);
                     return;
                 }
                 app.locals.caseID = result.insertId;
-            });
-        }
 
-        context.newVic = "Victim and Case Created";
-        res.render('victim', context);
+                context.newVic = "Victim and Case Created";
+                res.render('victim', context);
+            });
+
+        });
     }
 });
 
-
-//When no volunteers or shelters are available
-app.get("/victim", function (req, res, next) {
-    var context = {};
-
-    //add comment to caseFILE
-    mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?",
-        ["No volunteers/shelters available", app.locals.caseID], function (err, result, next) {
-            if (err) {
-                next(err);
-                return;
-            }
-
-        });
-    context.noHelp = "No Help Available";
-    res.render('victim', context);
+// ================= VOLUNTEER ARRIVAL CONFIRMATION ========= //
+app.get("/vicArrConfirm", function (req, res, next) {
+    res.render('vicArrConfirm');
 });
 
 
@@ -416,59 +480,11 @@ app.post("/Iadmin", function (req, res, next) {
         var adminID = req.body.adminID;
         var userList = req.body.userList;
         var queryOptions = {
-            availableList:req.body.availableList,
-            volunteerRating:req.body.volunteerRating,
-            shelterCap:req.body.shelterCap
+            availableList: req.body.availableList,
+            volunteerRating: req.body.volunteerRating,
+            shelterCap: req.body.shelterCap
         }
         setQuery(queryOptions);
-        /*
-        var availableList = req.body.availableList;
-        var volunteerRating = req.body.volunteerRating;
-        var shelterCap = req.body.shelterCap;
-
-        console.log(req.body);
-
-
-        //set availability query
-        var volunteerAvailability;
-        var shelterAvailability;
-        if (availableList == "all") {
-            shelterAvailability = " (shelter.availability = 1 OR shelter.availability = 0) ";
-            volunteerAvailability = " (volunteer.availability = 1 OR volunteer.availability = 0) ";
-        }
-        if (availableList == "0") {
-            shelterAvailability = " shelter.availability = 0 ";
-            volunteerAvailability = " (volunteer.availability = 0) ";
-        }
-        if (availableList == "1") {
-            shelterAvailability = " shelter.availability = 1 ";
-            volunteerAvailability = " (volunteer.availability = 1) ";
-        }
-
-        //set volunteer approval rating
-        if (volunteerRating == "all") {
-            volunteerRating = " volunteer.approvalRating > -1 ";
-        }
-        if (volunteerRating == "0.5") {
-            volunteerRating = " volunteer.approvalRating > 0.49 ";
-        }
-        if (volunteerRating == "0.49") {
-            volunteerRating = " volunteer.approvalRating < 0.5 ";
-        }
-        //set shelter capacity query
-        if (shelterCap == "all") {
-            shelterCap = " shelter.capacity > -1 ";
-        }
-        if (shelterCap == "0") {
-            shelterCap = " shelter.capacity = 0 ";
-        }
-        if (shelterCap == "1") {
-            shelterCap = "(shelter.capacity > 0 AND shelter.capacity < 5) ";
-        }
-        if (shelterCap == "5") {
-            shelterCap = " shelter.capacity > 4 ";
-        }
-*/
 
         mysql.pool.query("SELECT id, name FROM admin WHERE id=?", [adminID], function (err, result) {
             if (err) {
@@ -550,6 +566,27 @@ app.post("/Iadmin", function (req, res, next) {
 }); //end of Iadmin
 
 
+app.get("/IadminDelete", function (req, res, next) {
+    if (req.query.from == "shelter") {
+        mysql.pool.query("DELETE FROM shelter WHERE id=?", [req.query.id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+        });
+    }
+    else if (req.query.from == "volunteer") {
+        mysql.pool.query("DELETE FROM volunteer WHERE id=?", [req.query.id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+        });
+    }
+    res.render('Iadmin');
+});
+
+
 //Admin functions
 function storeShelterInfo(rows, context) {
     var index;
@@ -585,7 +622,7 @@ function storeVolunteerInfo(rows, context) {
     } // end for
 }
 
-function setQuery(queryOptions){
+function setQuery(queryOptions) {
     //set availability query
     if (queryOptions.availableList == "all") {
         queryOptions.shelterAvailability = " (shelter.availability = 1 OR shelter.availability = 0) ";
