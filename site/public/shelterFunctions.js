@@ -109,3 +109,54 @@ function accept(sID){
     //submit the form to the server
     form.submit();
 }
+
+
+function clickAvailability() {
+    var availabilityDiv = document.getElementById("availability");
+    if (availabilityDiv.style.display == 'block')
+        availabilityDiv.style.display = 'none';
+    else
+        availabilityDiv.style.display = 'block';
+    console.log("FOUND IT!");
+}
+
+
+
+
+
+function sendAvailable(status) {
+
+
+    var req = new XMLHttpRequest();
+    var id = document.getElementById("sid").textContent;
+
+    var payload = {
+        iId:id,
+        iAvailable: status // 1 = available, 0 = not
+    };
+
+    req.open('POST','http://67.158.10.37:3000/Ishelter?do=updateAvailability', true);
+    req.addEventListener('load', function(){
+        if(req.status >= 200 && req.status < 400){
+
+            // Update the value in the table:
+            if (status == 0)
+                document.getElementById("availabilityText").textContent = "No";
+            else
+                document.getElementById("availabilityText").textContent = "Yes";
+        }
+        else{
+            console.log("Error in network request: " + req.statusText);
+        }
+    });
+    req.setRequestHeader('Content-Type', 'application/json');
+    req.send(JSON.stringify(payload));
+    event.preventDefault();
+
+
+    // Hide the availability div again:
+    var availabilityDiv = document.getElementById("availability");
+    availabilityDiv.style.display = 'none';
+}
+
+

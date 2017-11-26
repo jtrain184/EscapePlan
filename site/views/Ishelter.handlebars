@@ -1,34 +1,68 @@
 <script type="text/javascript" src="shelterFunctions.js"></script>
 
 <style>
-    table, th, td{
+    table, th, td {
         border: 1px solid black;
     }
-    td.id{
+
+    td.id {
         display: none;
     }
+
 </style>
 
 {{#if results}}
-<table>
-    <tr>
-        <th>Shelter Name</th>
-        <th>Phone Number</th>
-        <th>Capacity</th>
-        <th>Available</th>
-    </tr>
     {{#each results}}
-        <tr>
-            <td>{{this.name}}</td>
-            <td>{{this.pnum}}</td>
-            <td><input id="cap" type="number" value="{{capacity}}" disabled></td>
-            <td>{{this.description}}</td>
-            <td class="id" value="{{this.id}}">{{this.id}}</td>
-        </tr>
+        <table>
+            <tr>
+                <th>Shelter Name</th>
+                <th>Phone Number</th>
+                <th>Capacity</th>
+                <th>Available</th>
+            </tr>
+
+            <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.pnum}}</td>
+                <td><input id="cap" type="number" value="{{capacity}}" disabled></td>
+                <td id="availabilityText">{{this.description}}</td>
+                <td id="sid" class="id" value="{{this.id}}">{{this.id}}</td>
+            </tr>
+
+        </table>
+        <!-- AVAILABLE BOX -->
+        <div id="availableBox">
+
+
+            <div id="availableButtons" style="display: inline-block">
+                <button id="availabilityButton" onclick="clickAvailability()">UpdateAvailability</button>
+                <div id="availability" style="display: none">
+                    <p>Select your availability</p>
+
+                    <button id="isAvailable" onclick="sendAvailable(1)">
+                        <img src="./images/availableButton.png"/>
+                    </button>
+
+                    <button id="isNotAvailable" onclick="sendAvailable(0)">
+                        <img src="./images/unavailableButton.png"/>
+                    </button>
+                </div>
+            </div>
+
+
+            <button onclick="editCap()" style="display: inline-block">Edit Capacity</button>
+            <form action="/shelterOO" method="get" style="display: inline-block">
+                <input type="number" style="display: none" name="id" value="{{this.id}}">
+                <input type="submit" value="Opt Out">
+            </form>
+            <div id="editInstructions" style="display: none"> Update capacity and <b>press Enter key</b> to confirm
+            </div>
     {{/each}}
-</table>
-    <button onclick="editCap()">Edit Capacity</button>
-    <div id="editInstructions" style="display: none"> Update capacity and <b>press Enter key</b> to confirm </div>
 {{else}}
-    <h3>Invalid Username or Password</h3>
+        <h3>Invalid Username or Password</h3>
+{{/if}}
+
+{{#if optOut}}
+        <h3>{{optOut}}</h3>
+        <a href="/shelterLogIn">Back to Shelter Log In</a>
 {{/if}}

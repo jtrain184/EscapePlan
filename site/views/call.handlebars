@@ -1,0 +1,77 @@
+<style>
+    .image {
+        height: 700px;
+        width: 400px;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+    .number{
+        position: absolute;
+        width:100%;
+        top: 10%;
+        left:0%;
+        background-color: #061826;
+        text-align: center;
+        color:white;
+    }
+    .thumbnail{
+        position: relative;
+        display: inline-block;
+    }
+</style>
+{{#if pnum}}
+    <div class="thumbnail">
+        <img class="image" src="http://www.prophethacker.com/wp-content/uploads/2015/12/Screenshot_2015-12-10-21-43-05.png" alt="Andoid Call Screen">
+        <div class="number">
+            <h3 id="pnum">{{pnum}}</h3>
+        </div>
+    </div>
+
+
+{{/if}}
+
+<p>Use the browser's back button to return to the demo</p>
+
+<script>
+    var number = document.getElementById("pnum").textContent;
+
+    var numberLength = number.length;
+    input = number.toLowerCase();
+    var phonenumber = "";
+
+    if(numberLength == 11){
+        input = input.substr(1,10);
+    }
+
+    phonenumber = "+1";
+    for (i=0; i < numberLength; i++) {
+        var character = input.charAt(i);
+        switch(character) {
+
+            case '0': phonenumber+="0";break;
+            case '1': phonenumber+="1";break;
+            case '2': phonenumber+="2";break;
+            case '3': phonenumber+="3";break;
+            case '4': phonenumber+="4";break;
+            case '5': phonenumber+="5";break;
+            case '6': phonenumber+="6";break;
+            case '7': phonenumber+="7";break;
+            case '8': phonenumber+="8";break;
+            case '9': phonenumber+="9";break;
+
+            case 'a': case 'b': case 'c': phonenumber+="2";break;
+            case 'd': case 'e': case 'f': phonenumber+="3";break;
+            case 'g': case 'h': case 'i': phonenumber+="4";break;
+            case 'j': case 'k': case 'l': phonenumber+="5";break;
+            case 'm': case 'n': case 'o': phonenumber+="6";break;
+            case 'p': case 'q': case 'r': case 's': phonenumber+="7";break;
+            case 't': case 'u': case 'v': phonenumber+="8";break;
+            case 'w': case 'x': case 'y': case 'z': phonenumber+="9";break;
+
+            default: phonenumber+=character;
+
+        }
+    }
+
+    document.getElementById("pnum").textContent = phonenumber;
+</script>

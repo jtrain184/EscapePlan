@@ -1,0 +1,67 @@
+<style>
+    textarea, select {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #fefeff;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+    textarea{
+        height: 150px;
+    }
+
+    input[type=submit] {
+        width: 100%;
+        background-color: #af1c62;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    input[type=submit]:hover {
+        background-color: #a53680;
+    }
+
+    div {
+        border-radius: 5px;
+        background-color: #ff56cc;
+        padding: 20px;
+    }
+</style>
+
+{{#if results}}
+    {{#each results}}
+
+
+        <h3>Thank you for helping Escape Plan!</h3>
+        <div>
+            We're sorry to see you go. Help us improve by taking a moment to explain why you're leaving.
+            <div>
+                <form id="shelterSurvey" onsubmit="return confirm('All your information will be removed from our system.\nAre you sure you want to opt out?');"
+                      action="/Ishelter?do=OO" method="post">
+                    <label>Reasons for leaving:</label>
+                    <label id="charCount" style="float: right; display: inline">Character Remaining: 255/255</label>
+                    <textarea id="comments"  name="comments" oninput="charCount()" form="shelterSurvey"></textarea>
+                    <input type="number" style="display: none" name="id" form="shelterSurvey" value="{{this.id}}">
+                    <input type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
+    {{/each}}
+
+{{/if}}
+
+
+<script>
+    function charCount(){
+        var maxLength = 255;
+        var currentLength = document.getElementById("comments").value.length;
+        var charLeft = maxLength - currentLength;
+        document.getElementById("charCount").innerHTML = "Characters Remaining: " + charLeft + "/255";
+    }
+</script>

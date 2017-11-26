@@ -46,7 +46,7 @@ app.post("/", function (req, res, next) {
     var comments = req.body.comments;
 
     //add the comments to the case file
-    mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?", [comments, app.locals.caseID], function (err, result, next) {
+    mysql.pool.query("UPDATE caseFile SET comments=?, recommends=? WHERE id=?", [comments, approval, app.locals.caseID], function (err, result, next) {
         if (err) {
             next(err);
             return;
@@ -334,6 +334,15 @@ app.post("/volAccDec", function (req, res, next) {
 
 });
 
+// =================== VICTIM CALLING VOLUNTEER ===============//
+app.get("/call", function(req,res,next){
+    var context = {};
+    var pnum;
+    pnum = req.query.num;
+    context.pnum = pnum;
+    res.render('call', context);
+});
+
 // ================= VOLUNTEER ARRIVAL CONFIRMATION ========= //
 app.get("/volArrConfirm", function (req, res, next) {
     res.render('volArrConfirm');
@@ -391,6 +400,81 @@ app.post("/Ishelter", function (req, res, next) {
         });
         res.render('Ishelter');
     }
+
+    //================ Update Availability ========================//
+    else if (action == "updateAvailability") {
+        var id = req.body.iId;
+        var avail = req.body.iAvailable;
+
+        mysql.pool.query("UPDATE shelter SET availability=? WHERE id=?", [avail, id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+        });
+
+        res.render('Ishelter');
+    }
+
+    // ============ SHELTER OPT OUT CONFIRM ================ //
+    else if(action == "OO") {
+
+        var id = req.body.id;
+        var comments = req.body.comments;
+
+        console.log("The shelter id is:" + id);
+        //get shelter info
+        mysql.pool.query("SELECT shelter.name, shelter.pnum, shelter.location_lat, shelter.location_lon FROM shelter WHERE shelter.id=?", [id], function (err, result) {
+            if (err) {
+                next(err);
+                return;
+            }
+            console.log("The results for this query are: " + result);
+            var name = result[0].name;
+            var pnum = result[0].pnum;
+            var lat = result[0].location_lat;
+            var lon = result[0].location_lon;
+
+            //remove the shelter from shelter table
+            mysql.pool.query("DELETE FROM shelter WHERE id=?", [id], function (err, results) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+
+            //insert shelter into shelterOptOut table
+            mysql.pool.query("INSERT INTO shelterOptOut (`name`, `pnum`, `location_lat`, `location_lon`, `comments`)" +
+                " VALUES (?, ?, ?, ?, ?)", [name, pnum, lat, lon, comments], function (err, moreResults, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+                context.results={};
+                context.optOut = name + " has been succesfully removed from our system.";
+
+                res.render('Ishelter', context);
+            }); //end of insert shelter
+        }); //end of remove shelter
+    });//end of select shelter
+
+
+    }// end of shelter opt out
+});
+
+// ============ SHELTER OPT OUT ==================== //
+app.get("/shelterOO", function (req, res, next) {
+    var context = {};
+    var sid = req.query.id;
+
+    mysql.pool.query("SELECT shelter.id, shelter.name FROM shelter WHERE shelter.id=?", [sid], function (err, result) {
+        if (err) {
+            next(err);
+            return;
+        }
+        context.results = result;
+        res.render('shelterOO', context);
+    });
+
 });
 
 
