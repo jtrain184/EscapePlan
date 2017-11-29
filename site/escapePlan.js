@@ -92,22 +92,6 @@ app.post("/victim", function (req, res, next) {
         res.render('victim', context);
     }
 
-
-    //When no volunteers or shelters are available
-    else if (action == "noHelp") {
-        //add comment to caseFILE
-        mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?",
-            ["No volunteers/shelters available", app.locals.caseID], function (err, result, next) {
-                if (err) {
-                    next(err);
-                    return;
-                }
-
-            });
-        context.noHelp = "No Help Available";
-        res.render('victim', context);
-    }
-
     //if a volunteer has accepted
     else if (action == "help") {
         var volID = req.body.id;
@@ -210,6 +194,28 @@ app.post("/victim", function (req, res, next) {
         });
     }
 });
+
+
+//When no volunteers or shelters are available
+app.get("/victim", function (req, res, next) {
+    var action = req.query.do;
+    var context = {};
+    if (action == "noHelp") {
+        //add comment to caseFILE
+        mysql.pool.query("UPDATE caseFile SET comments=? WHERE id=?",
+            ["No volunteers/shelters available", app.locals.caseID], function (err, result, next) {
+                if (err) {
+                    next(err);
+                    return;
+                }
+
+            });
+        context.noHelp = "No Help Available";
+        res.render('victim', context);
+    }
+    res.render('victim');
+});
+
 
 // ================= VOLUNTEER ARRIVAL CONFIRMATION ========= //
 app.get("/vicArrConfirm", function (req, res, next) {
