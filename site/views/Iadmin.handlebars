@@ -13,24 +13,21 @@
     }
 
     #box {
-        background-color: #ecccff;
+        background-color: #ffeecc;
         border: 5px solid black;
         padding: 16px;
         margin: 12px;
         min-width: 512px;
     }
 
-    #shelterTable {
+    #shelterTableDiv {
         padding-top: 25px;
     }
 
-    #volunteerTable {
+    #volunteerTableDiv {
         padding-top: 25px;
     }
 
-    #deleteButton {
-        color: red;
-    }
 
 </style>
 
@@ -107,7 +104,7 @@
                     {{#each shelter}}
                         <tr>
                             <td>
-                                <button id="deleteSButton{{this.id}}" type="button" onClick="deleteShelter({{this.id}});">Delete
+                                <button id="deleteSButton{{this.id}}" type="button" style="color: red;" onClick="deleteShelter({{this.id}});">Delete
                                 </button>
                             </td>
                             <td>{{this.name}}</td>
@@ -146,7 +143,7 @@
                     {{#each volunteer}}
                         <tr>
                             <td>
-                                <button id="deleteVButton{{this.id}}" type="button" onClick="deleteVolunteer({{this.id}});">Delete
+                                <button id="deleteVButton{{this.id}}" type="button" style="color: red;" onClick="deleteVolunteer({{this.id}});">Delete
                                 </button>
                             </td>
                             <td>{{this.fname}}</td>

@@ -32,7 +32,14 @@
 
 <p>Use the browser's back button to return to the demo</p>
 
+
+
 <script>
+    /****************************************************
+     * Code to change letters to numbers was taken from
+     * bitexperts.com/Question/Detail/3304/how-to-convert-phone-number-letters-into-digits-In-javascript
+     * This is also cited as [2] in our write-up
+     */
     var number = document.getElementById("pnum").textContent;
 
     var numberLength = number.length;
@@ -44,7 +51,7 @@
     }
 
     phonenumber = "+1";
-    for (i=0; i < numberLength; i++) {
+    for (var i = 0; i < numberLength; i++) {
         var character = input.charAt(i);
         switch(character) {
 

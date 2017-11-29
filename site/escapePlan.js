@@ -137,8 +137,8 @@ app.post("/victim", function (req, res, next) {
     else if (action == "vicConfirm") {
         //go to survery page
         //get the volunteer ID from this case file
-        mysql.pool.query("SELECT caseFile.volID from caseFile WHERE id=?", [app.locals.caseID], function(err, result, next){
-            if(err){
+        mysql.pool.query("SELECT caseFile.volID from caseFile WHERE id=?", [app.locals.caseID], function (err, result, next) {
+            if (err) {
                 next(err);
                 return;
             }
@@ -341,7 +341,7 @@ app.post("/volAccDec", function (req, res, next) {
 });
 
 // =================== VICTIM CALLING VOLUNTEER ===============//
-app.get("/call", function(req,res,next){
+app.get("/call", function (req, res, next) {
     var context = {};
     var pnum;
     pnum = req.query.num;
@@ -423,7 +423,7 @@ app.post("/Ishelter", function (req, res, next) {
     }
 
     // ============ SHELTER OPT OUT CONFIRM ================ //
-    else if(action == "OO") {
+    else if (action == "OO") {
 
         var id = req.body.id;
         var comments = req.body.comments;
@@ -448,20 +448,20 @@ app.post("/Ishelter", function (req, res, next) {
                     return;
                 }
 
-            //insert shelter into shelterOptOut table
-            mysql.pool.query("INSERT INTO shelterOptOut (`name`, `pnum`, `location_lat`, `location_lon`, `comments`)" +
-                " VALUES (?, ?, ?, ?, ?)", [name, pnum, lat, lon, comments], function (err, moreResults, next) {
-                if (err) {
-                    next(err);
-                    return;
-                }
-                context.results={};
-                context.optOut = name + " has been succesfully removed from our system.";
+                //insert shelter into shelterOptOut table
+                mysql.pool.query("INSERT INTO shelterOptOut (`name`, `pnum`, `location_lat`, `location_lon`, `comments`)" +
+                    " VALUES (?, ?, ?, ?, ?)", [name, pnum, lat, lon, comments], function (err, moreResults, next) {
+                    if (err) {
+                        next(err);
+                        return;
+                    }
+                    context.results = {};
+                    context.optOut = name + " has been succesfully removed from our system.";
 
-                res.render('Ishelter', context);
-            }); //end of insert shelter
-        }); //end of remove shelter
-    });//end of select shelter
+                    res.render('Ishelter', context);
+                }); //end of insert shelter
+            }); //end of remove shelter
+        });//end of select shelter
 
 
     }// end of shelter opt out
@@ -531,7 +531,7 @@ app.post("/Iadmin", function (req, res, next) {
             context.admin = result;
 
             // Grab ALL the shelter data:
-            mysql.pool.query("SELECT * FROM shelter", function (err, rows, fields) {
+            mysql.pool.query("SELECT * FROM shelter INNER JOIN Availability ON Availability.availability = shelter.availability", function (err, rows, fields) {
                 if (err) {
                     next(err);
                     return;
@@ -545,7 +545,7 @@ app.post("/Iadmin", function (req, res, next) {
 
 
                 // Grab ALL the volunteer data:
-                mysql.pool.query("SELECT * FROM volunteer", function (err, rows, fields) {
+                mysql.pool.query("SELECT * FROM volunteer INNER JOIN Availability ON Availability.availability = volunteer.availability", function (err, rows, fields) {
                     if (err) {
                         next(err);
                         return;
@@ -619,7 +619,8 @@ app.post("/Iadmin", function (req, res, next) {
             // ============================ Filter Shelter Options ========================= //
             if (userList == "shelter") {
                 // Grab ALL the shelter data:
-                mysql.pool.query("SELECT * FROM shelter WHERE " + queryOptions.shelterAvailability + " AND " + queryOptions.shelterCap, function (err, rows, fields) {
+                mysql.pool.query("SELECT * FROM shelter WHERE " + queryOptions.shelterAvailability +
+                    " AND " + queryOptions.shelterCap, function (err, rows, fields) {
                     if (err) {
                         next(err);
                         return;
@@ -636,7 +637,8 @@ app.post("/Iadmin", function (req, res, next) {
             // ============================ Filter Volunteer Options ========================= //
             if (userList == "volunteer") {
                 // Grab ALL the volunteer data:
-                mysql.pool.query("SELECT * FROM volunteer WHERE " + queryOptions.volunteerAvailability + " AND " + queryOptions.volunteerRating, function (err, rows, fields) {
+                mysql.pool.query("SELECT * FROM volunteer WHERE " + queryOptions.volunteerAvailability +
+                    " AND " + queryOptions.volunteerRating, function (err, rows, fields) {
                     if (err) {
                         next(err);
                         return;
@@ -689,7 +691,7 @@ function storeShelterInfo(rows, context) {
             location_lat: row.location_lat,
             location_lon: row.location_lon,
             capacity: row.capacity,
-            availability: row.availability
+            availability: row.description
         });
     } // end for
 }
@@ -703,7 +705,7 @@ function storeVolunteerInfo(rows, context) {
             fname: row.fname,
             lname: row.lname,
             pnum: row.pnum,
-            availability: row.availability,
+            availability: row.description,
             approvalRating: row.approvalRating,
             carMake: row.carMake,
             carModel: row.carModel,
